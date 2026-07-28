@@ -1,0 +1,33 @@
+{
+  "default_branch": "develop",
+  "branches": [
+    "develop",
+    "final-email",
+    "fix/github-profile-url-939",
+    "main",
+    "mcp-integration",
+    "origin",
+    "team-allocation-readability",
+    "validation/github-profile-url-939"
+  ],
+  "parent": {
+    "develop": null,
+    "final-email": "develop",
+    "fix/github-profile-url-939": "develop",
+    "main": "develop",
+    "mcp-integration": "develop",
+    "origin": "develop",
+    "team-allocation-readability": "develop",
+    "validation/github-profile-url-939": "develop"
+  },
+  "order": [
+    "develop",
+    "final-email",
+    "fix/github-profile-url-939",
+    "main",
+    "mcp-integration",
+    "origin",
+    "team-allocation-readability",
+    "validation/github-profile-url-939"
+  ]
+}
