@@ -1,0 +1,54 @@
+name: Profile URL validation
+on:
+  push:
+    branches: ['validation/github-profile-url-939']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: production
+      DATABASE_URL: postgis://djangonaut:djangonaut@localhost:5432/djangonaut-space
+      DATABASE_SSL: 'false'
+      DEBUG: 'False'
+      SECRET_KEY: synthetic-test-key
+      RECAPTCHA_PUBLIC_KEY: dummy
+      RECAPTCHA_PRIVATE_KEY: dummy
+      EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
+      TASK_BACKEND: django_tasks.backends.immediate.ImmediateBackend
+      STATICFILES_BACKEND: django.contrib.staticfiles.storage.StaticFilesStorage
+    services:
+      pg:
+        image: postgis/postgis:17-3.5
+        ports: ['5432:5432']
+        env:
+          POSTGRES_USER: djangonaut
+          POSTGRES_PASSWORD: djangonaut
+          POSTGRES_DB: djangonaut-space
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: astral-sh/setup-uv@v6
+      - run: |
+          sudo add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable
+          sudo apt-get update
+          sudo apt-get install -y libgdal-dev g++ gdal-bin libpq-dev
+          uv sync --frozen --group test
+      - name: Red regression against unchanged forms
+        run: |
+          git checkout 25d584d -- home/forms.py
+          set +e
+          uv run pytest home/tests/test_forms.py -k GitHubUsernameNormalizationTests --junitxml=red.xml -q
+          code=$?
+          set -e
+          test "$code" = 1
+          python -c "import xml.etree.ElementTree as E; s=list(E.parse('red.xml').iter('testsuite')); assert sum(int(x.get('errors',0)) for x in s)==0; assert sum(int(x.get('failures',0)) for x in s)==2"
+      - name: Green form tests
+        run: |
+          git checkout HEAD -- home/forms.py
+          uv run pytest home/tests/test_forms.py accounts/tests/test_forms.py -q
