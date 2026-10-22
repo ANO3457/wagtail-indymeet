@@ -41,7 +41,7 @@ jobs:
           uv sync --frozen --group test
       - name: Red regression against unchanged forms
         run: |
-          git checkout 25d584d -- home/forms.py
+          git checkout 25d584d -- home/forms.py home/tests/test_forms.py
           set +e
           uv run pytest home/tests/test_forms.py -k GitHubUsernameNormalizationTests --junitxml=red.xml -q
           code=$?
@@ -50,5 +50,5 @@ jobs:
           python -c "import xml.etree.ElementTree as E; s=list(E.parse('red.xml').iter('testsuite')); assert sum(int(x.get('errors',0)) for x in s)==0; assert sum(int(x.get('failures',0)) for x in s)==2"
       - name: Green form tests
         run: |
-          git checkout HEAD -- home/forms.py
+          git checkout HEAD -- home/forms.py home/tests/test_forms.py
           uv run pytest home/tests/test_forms.py accounts/tests/test_forms.py -q
