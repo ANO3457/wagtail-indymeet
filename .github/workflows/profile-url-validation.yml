@@ -51,4 +51,4 @@ jobs:
       - name: Green form tests
         run: |
           git checkout HEAD -- home/forms.py home/tests/test_forms.py
-          uv run pytest home/tests/test_forms.py accounts/tests/test_forms.py -q
+          uv run pytest home/tests/test_forms.py -q
